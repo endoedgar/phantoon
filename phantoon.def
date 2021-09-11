@@ -1,0 +1,41 @@
+;***************************************************************************;
+;******************* Created in Fighter Factory Ultimate *******************;
+;*******************      http://www.virtualltek.com     *******************;
+;***************************************************************************;
+
+[Info]
+name = "Phantoon by Endoedgarjunior"
+displayname = "Phantoon"
+versiondate = 02/01/2010
+mugenversion = 06,14,2003
+author = "Endoedgarjunior"
+pal.defaults = 1, 2, 3, 4
+
+[Files]
+sprite = phantoon.sff
+anim = phantoon.air
+sound = phantoon.snd
+cmd = phantoon.cmd
+cns = phantoon.cns
+stcommon = fisica.cns
+st = phantoon.cns
+pal1 = phantoon.act
+pal2 = phantoonredfire.act
+
+[Arcade]
+;intro.storyboard = 
+;ending.storyboard = 
+[Extra Info]
+Manufactory=NINTENDO
+Game=Super Metroid
+Style=Super Powers
+AI=
+Race=Undead
+Size=Normal
+Strenght=45
+Buttons=0
+Combos=
+Boss=1
+SuperJump=0
+Levitate=0
+Secret=0

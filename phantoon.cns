@@ -1,0 +1,1980 @@
+; Constants and state file.
+; There are comments scattered through this file, so you may like to
+; take a look if would like to learn more about the cns.
+
+[Data]
+life = 1000
+power = 1000
+attack = 100
+defence = 100
+fall.defence_up = 50
+liedown.time = 60
+airjuggle = 15
+sparkno = 2
+guard.sparkno = 40
+KO.echo = 0
+volume = 0
+IntPersistIndex = 58
+FloatPersistIndex = 40
+
+
+[Size]
+xscale = 1
+yscale = 1
+ground.back = 15
+ground.front = 16
+air.back = 12
+air.front = 12
+height = 112
+attack.dist = 160
+proj.attack.dist = 90
+proj.doscale = 0
+head.pos = 0, -40
+mid.pos = 0, -40
+shadowoffset = 0
+draw.offset = 0,0
+
+[Velocity]
+walk.fwd  = 2.4	
+walk.back = -2.2
+run.fwd  = 4.6, 0
+run.back = -4.5,-3.8
+jump.neu = 0,-8.4
+jump.back = -2.55
+jump.fwd = 2.5
+runjump.back = -2.55,-8.1
+runjump.fwd = 4,-8.1
+airjump.neu = 0,-8.1
+airjump.back = -2.55
+airjump.fwd = 2.5		;.
+
+[Movement]
+airjump.num = 0
+airjump.height = 0
+yaccel = .11
+stand.friction = .85
+crouch.friction = .82
+
+;---------------------------------------------------------------------------
+; Lose by Time Over
+; CNS difficulty: basic
+[Statedef 170]
+type = S
+ctrl = 0
+anim = 170
+velset = 0,0
+
+[State 170, 1]
+type = NotHitBy
+trigger1 = 1
+value = SCA
+time = 1
+
+;---------------------------------------------------------------------------
+; Win state decider
+; CNS difficulty: basic
+[Statedef 180]
+type = S
+
+[State 180, 1]
+type = ChangeState
+trigger1 = Time = 0
+value = 181
+
+;---------------------------------------------------------------------------
+; Win pose 1
+; CNS difficulty: basic
+[Statedef 181]
+type = S
+ctrl = 0
+velset = 0,0
+
+[State 181, 1]
+type = NotHitBy
+trigger1 = 1
+value = SCA
+time = 1
+
+;---------------------------------------------------------------------------
+; Introduction
+; CNS difficulty: basic
+[Statedef 190]
+type = A
+ctrl = 0
+anim = 190
+velset = 0,0
+
+[State 190, 1]
+type = VarSet
+trigger1 = !RoundState
+trigger1 = (var(59) != 1)
+trigger1 = NumPartner
+trigger1 = (ID > Partner,ID)
+trigger1 = (TeamSide = 2)
+var(59) = 1
+
+[State 191, 2]
+type = PosSet
+trigger1 = !time
+y = -50
+
+[State 191, 3]
+type = PlaySnd
+trigger1 = !time
+value = S191,0
+lowpriority = 1
+channel = 9
+loop = 1
+
+[State 190, 4]
+type = AssertSpecial
+trigger1 = 1
+flag = intro
+flag2 = nomusic
+
+[State 190, 5]
+type = Helper
+trigger1 = !time
+helpertype = normal
+name = "Introduction Fire"
+ID = 191
+stateno = 191
+pos = 0,0
+postype = p1
+facing = 1
+ownpal = 1
+
+[State 190, 6]
+type = StopSnd
+trigger1 = var(20)
+channel = 9
+
+[State 190, 7]
+type = ChangeState
+trigger1 = var(20)
+value = 0
+
+; Fogo Introdução
+[Statedef 191]
+type = A
+movetype = I
+physics = N
+anim = 600
+
+[State 191, PlaySnd]
+type = PlaySnd
+trigger1 = !time
+value = S0,2
+channel = -1
+
+[State 191, VarSet]
+type = VarSet
+trigger1 = !time && root, ID != parent, ID
+v = 10    ;fv = 10
+value = parent, var(10) + 360/8
+
+[State 191, VarSet]
+type = VarSet
+trigger1 = !time
+v = 11
+value = 90
+
+[State 191, VarSet]
+type = VarSet
+trigger1 = !time
+v = 13
+value = 255
+
+[State 191, VarSet]
+type = VarSet
+trigger1 = !time
+v = 12
+value = 50
+
+[State 191, PosSet]
+type = PosSet
+trigger1 = !time && root, ID = parent, ID
+;x = root, pos x - (50*cos(((time*4)/180.0)*PI))
+y = -40+root, pos y - (50*sin(((90)/180.0)*PI))
+
+[State 191, PosSet]
+type = PosSet
+trigger1 = !time && root, ID != parent, ID
+x = root, pos x - (50*cos(((90+var(10))/180.0)*PI))
+y = -40+root, pos y - (50*sin(((90+var(10))/180.0)*PI))
+
+[State 191, PosSet]
+type = PosSet
+trigger1 = 1
+x = root, pos x - (var(12)*cos(((var(11)+var(10))/180.0)*PI))
+y = -40+root, pos y - (var(12)*sin(((var(11)+var(10))/180.0)*PI))
+
+[State 191, VarAdd]
+type = VarAdd
+trigger1 = root, time > 230
+v = 11
+value = 2
+
+[State 191, VarAdd]
+type = VarAdd
+trigger1 = root, time > 300 && var(12) > 0
+v = 12
+value = -1
+
+[State 191, VarAdd]
+type = VarAdd
+trigger1 = var(12) <= 0 && var(13) > 0
+v = 13
+value = -9
+
+[State 191, Trans]
+type = Trans
+trigger1 = 1
+trans = addalpha
+alpha = var(13),256
+ignorehitpause = 1
+
+[State 191, ParentVarSet]
+type = ParentVarSet
+trigger1 = var(12) <= 0 && parent, id = root, id && !root, var(20)
+v = 20
+value = 1
+
+[State 191, DestroySelf]
+type = DestroySelf
+trigger1 = var(13) <= 0
+
+[State 191, Helper]
+type = Helper
+trigger1 = numhelper(191) < 8 && time > 30 && !var(0)
+helpertype = normal ;player
+name = "Introduction Fire"
+ID = 191
+stateno = 191
+pos = 0,0
+postype = p1    ;p2,front,back,left,right
+facing = 1
+keyctrl = 0
+ownpal = 1
+
+[State 191, VarSet]
+type = VarSet
+trigger1 = time > 30 && !var(0)
+v = 0
+value = 1
+
+; Hit
+[Statedef 200]
+type = S
+movetype = H
+
+[State -2, HitOverride]
+type = HitOverride
+trigger1 = 1
+attr = SCA,NA,SA,HA,NP,SP,HP,NT,ST,HT
+slot = 0
+stateno = 200
+time = 1
+forceair = 0
+ignorehitpause = 1
+
+[State 200, PlaySnd]
+type = PlaySnd
+trigger1 = !time
+value = S5000,0
+channel = -1
+
+[State 200, VarSet]
+type = VarSet
+trigger1 = !time
+v = 5
+value = gametime + GetHitVar(hittime)
+
+[State 200, VarSet]
+type = VarSet
+trigger1 = !time
+v = 42
+value = gethitvar(damage)
+
+[State 200, ChangeState]
+type = ChangeState
+trigger1 = time
+value = 0
+ctrl = 1
+
+; var(3) FSM
+; 0 = Atirar Fogos Azuis Transparente
+; 1 = Atirar Fogos Azuis Giratórios (vulnerável)
+; 2 = Desaparecer para Ir Para 3
+; 3 = Atirar Fogos Em Fileira (vulnerável)
+; 4 = Desaparecer Para Ir Para 0
+; 5 = Atirar Fogos Azuis Invisível
+; 6 = Desaparecer para ir Para 7
+; 7 = Contra-atacando um ataque poderoso
+; 8 = Olhar o oponente quando receber um ataque fraco (vulneravel)
+; Corpo
+[Statedef 1000]
+type = A
+physics = N
+sprpriority = -1
+anim = 10
+
+[State 1000, VarSet]
+type = VarSet
+trigger1 = !root, alive
+v = 3
+value = 0
+
+[State -2, Helper]
+type = Helper
+trigger1 = !root, numhelper(1001) && root, alive
+helpertype = normal
+name = "Olho"
+ID = 1001
+stateno = 1001
+pos = 0,0
+postype = p1
+facing = 1
+
+[State 1000, Turn]
+type = Turn
+trigger1 = facing = -1
+ignorehitpause = 1
+
+[State 1000, VarSet]
+type = VarSet
+trigger1 = var(3) != 8
+v = 8
+value = 0
+
+[State 1000, VarSet]
+type = VarSet
+trigger1 = !time
+v = 42
+value = -1
+ignorehitpause = 1
+
+[State 1000, VarSet]
+type = VarSet
+trigger1 = var(3) = 8 && (var(4) > 180 || var(8) >= 150)
+trigger2 = var(3) = 7 && var(4) > 700 && !numhelper(2003)
+trigger3 = var(3) = 6 && var(4) > 300
+trigger4 = var(3) = 5 && var(4) > 300
+trigger5 = var(3) = 0 && var(4) > 600
+trigger6 = var(3) = 2 && var(4) > 180
+trigger7 = var(3) = 4 && var(4) > 300 && !numhelper(2001)
+v = 4
+value = -1
+
+[State 1000, VarSet]
+type = VarSet
+trigger1 = var(3) = 2 && var(4) <= -1
+v = 3
+value = 3
+
+[State 1000, VarSet]
+type = VarSet
+trigger1 = !var(3) && var(4) <= -1
+v = 3
+value = 1
+
+[State 1000, VarSet]
+type = VarSet
+trigger1 = var(3) = 5 && var(4) <= -1
+v = 3
+value = 3
+
+[State 1000, VarSet]
+type = VarSet
+trigger1 = var(3) = 4 && var(4) <= -1
+v = 3
+value = 0
+
+[State 1000, VarSet]
+type = VarSet
+trigger1 = var(3) = 7 && var(4) <= -1
+v = 3
+value = 4
+
+[State 1000, VarSet]
+type = VarSet
+trigger1 = var(3) = 6 && var(4) <= -1
+v = 3
+value = 7
+
+[State 1000, VarSet]
+type = VarSet
+trigger1 = var(3) = 8 && var(4) <= -1
+v = 3
+value = 4
+
+[State 1000, VarSet]
+type = VarAdd
+trigger1 = roundstate = 2 && var(3) != 3 && var(3) != 1
+v = 4
+value = 1
+
+[State 1000, VarSet]
+type = Varset
+trigger1 = var(3) = 3 || var(3) = 1
+v = 4
+value = 0
+
+[State 1000, BindToRoot]
+type = BindToRoot
+trigger1 = !time
+time = -1
+pos = 0,0
+ignorehitpause = 1
+
+[State 1000, Helper]
+type = Helper
+trigger1 = var(3) = 1 && roundstate = 2 && !numhelper(2002) && !var(0)
+helpertype = normal
+name = "Giratory Fire"
+ID = 2002
+stateno = 2002
+pos = 0,0
+postype = p1
+facing = 1
+keyctrl = 0
+ownpal = 1
+
+[State 3000, Super A]
+type = SuperPause
+trigger1 = roundstate = 2 && !numhelper(2003) && var(3) = 7 && var(4) = 60
+pos = 0, -34
+anim = 102
+sound = 20, 0
+time = 60
+
+[State 1000, VarSet]
+type = VarSet
+trigger1 = roundstate = 2 && !numhelper(2003) && var(3) = 7
+v = 42
+value = -var(42)
+ignorehitpause = 1
+
+[State 1000, Helper]
+type = Helper
+trigger1 = roundstate = 2 && !numhelper(2003) && var(3) = 7 && var(4) > 60
+helpertype = normal
+name = "Giratory Fire Special"
+ID = 2003
+stateno = 2003
+pos = 0,0
+postype = p1
+facing = 1
+keyctrl = 0
+ownpal = 1
+
+[State 1000, VarSet]
+type = VarSet
+trigger1 = var(3) = 1 && numhelper(2002) && !var(0)
+v = 0
+value = 1
+
+[State 1000, VarSet]
+type = VarSet
+trigger1 = var(3) = 1 && !numhelper(2002) && var(0)
+v = 0
+value = 0
+
+[State 1000, VarSet]
+type = VarSet
+trigger1 = var(3) = 1 && !numhelper(2002)
+v = 3
+value = 5
+
+[State 1000, Helper]
+type = Helper
+trigger1 = time % 60 = 0 && (!var(3) || var(3) = 5) && roundstate = 2
+helpertype = normal
+name = "Fire Projectile"
+ID = 2000
+stateno = 2000
+pos = 0,0
+postype = p1
+facing = 1
+keyctrl = 0
+ownpal = 1
+
+[State 1000, Helper]
+type = Helper
+trigger1 = var(3) = 3 && !numhelper(2001) && !var(0)
+helpertype = normal
+name = "Fire Projectile Special"
+ID = 2001
+stateno = 2001
+pos = 0,0
+postype = p1
+facing = 1
+keyctrl = 0
+ownpal = 1
+
+[State 1000, VarSet]
+type = VarSet
+trigger1 = var(3) = 3 && numhelper(2001) && !var(0)
+v = 0
+value = 1
+
+[State 1000, VarSet]
+type = VarSet
+trigger1 = var(3) = 3 && !numhelper(2001) && var(0)
+v = 3
+value = 2
+
+[State 1000, VarSet]
+type = VarSet
+trigger1 = (var(3) = 3  || var(3) = 1) && root, movetype = H && !(var(3) = 8 && root, var(42) < 50)
+v = 4
+value = 0
+
+[State 1000, VarSet]
+type = VarSet
+trigger1 = (var(3) = 3  || var(3) = 1 || var(3) = 8) && root, movetype = H
+v = 3
+value = ifelse(root, var(42) >= 150, 6, ifelse(root, var(42) <= 75, 8, 4))
+
+[State 1000, VarSet]
+type = VarAdd
+trigger1 = (var(3) = 8) && root, movetype = H
+v = 8
+value = root, var(42)
+
+[State 1000, VarSet]
+type = VarSet
+triggerall = var(0)
+trigger1 = var(3) = 3 && !numhelper(2001)
+trigger2 = !var(3) || var(3) = 5 || var(3) = 2
+v = 0
+value = 0
+
+; Visível
+[State 1000, VarAdd]
+type = VarAdd
+triggerall = var(30) < 256
+trigger1 = (root, stateno != 190 && var(3) != 2 && var(3) != 4) || root, stateno = 181
+v = 30
+value = ifelse(var(3) = 3, -(var(30)-256), 2)
+
+; Invisível
+[State 1000, VarAdd]
+type = VarAdd
+triggerall = var(30) > 0 && root, stateno != 181
+trigger1 = (var(3) = 2 || var(3) = 4 || var(3) = 5 || var(3) = 6)
+v = 30
+value = -6
+
+[State 1000, Trans]
+type = Trans
+trigger1 = (root, alive || (root, stateno = 5050 && root, time > 300))
+trans = addalpha
+alpha = var(30),256
+ignorehitpause = 1
+
+[State 1000, Trans]
+type = Trans
+trigger1 = !root, alive && root, stateno = 5050 && root, time <= 300
+trans = addalpha
+alpha = 128-floor(sin(((root, time*4)/180.0)*pi)*128),256
+
+[State 1000, NotHitBy]
+type = NotHitBy
+trigger1 = !time
+value = SCA,NA,SA,HA,NP,SP,HP,NT,ST,HT
+time = -1
+ignorehitpause = 1
+
+[State 1000, DestroySelf]
+type = DestroySelf
+trigger1 = root, stateno = 5150 && !root, alive
+
+; Olho
+[Statedef 1001]
+type = A
+physics = N
+anim = 1
+sprpriority = -1
+
+[State 1000, Turn]
+type = Turn
+trigger1 = facing = -1
+ignorehitpause = 1
+
+[State 1001, Trans]
+type = Trans
+triggerall = numhelper(1000)
+trigger1 = (root, alive || (root, stateno = 5050 && root, time > 300))
+trans = addalpha
+alpha = helper(1000), var(30),256
+ignorehitpause = 1
+
+[State 1001, Trans]
+type = Trans
+trigger1 = !root, alive && root, stateno = 5050 && root, time <= 300
+trans = addalpha
+alpha = 128-floor(sin(((root, time*4)/180.0)*pi)*128),256
+
+[State 1001, AssertSpecial]
+type = ChangeAnim
+triggerall = numhelper(1000) && root, alive && root, stateno != 181
+trigger1 = anim != 6 && helper(1000), var(3) != 3 && helper(1000), var(3) != 1 && helper(1000), var(3) != 8
+trigger2 = helper(1000), var(3) = 4 && helper(1000), var(4) = 0
+value = 6
+ignorehitpause = 1
+
+[State 1001, ChangeAnim]
+type = ChangeAnim
+triggerall = numhelper(1000)
+trigger1 = helper(1000), var(3) = 3 || helper(1000), var(3) = 1 || helper(1000), var(3) = 8 || !root, alive || root, stateno = 181
+value = ifelse(helper(1000), var(3) = 1 || helper(1000), var(3) = 8 || !root, alive || root, stateno = 181, ifelse(enemynear, pos x - pos x > 20, 5, ifelse(enemynear, pos x - pos x < - 20, 4, 3)), 1)
+
+[State 1001, NotHitBy]
+type = NotHitBy
+trigger1 = !time
+value = SCA,NA,SA,HA,NP,SP,HP,NT,ST,HT
+time = -1
+ignorehitpause = 1
+
+[State 1001, BindToRoot]
+type = BindToRoot
+trigger1 = !time
+time = -1
+pos = 0,0
+ignorehitpause = 1
+
+[State 1001, DestroySelf]
+type = DestroySelf
+trigger1 = root, stateno = 5150 && !root, alive
+
+[Statedef 1998]
+type = U
+movetype = H
+physics = N
+velset = 0,0
+anim = 604
+
+[State 1998, NotHitBy]
+type = NotHitBy
+trigger1 = !time
+value = SCA,NA,SA,HA,NP,SP,HP,NT,ST,HT
+time = -1
+
+[State 1998, DestroySelf]
+type = ChangeState
+trigger1 = !animtime
+value = 1999
+
+[Statedef 1999]
+type = U
+movetype = H
+physics = N
+velset = 0,0
+anim = 603
+
+[State 1999, NotHitBy]
+type = NotHitBy
+trigger1 = !time
+value = SCA,NA,SA,HA,NP,SP,HP,NT,ST,HT
+time = -1
+
+[State 1999, DestroySelf]
+type = DestroySelf
+trigger1 = !animtime
+ignorehitpause = 1
+
+; Gota Azul de Fogo
+[Statedef 2000]
+type = A
+movetype = A
+physics = N
+anim = 600
+poweradd = -40
+
+[State 2000, NotHitBy]
+type = NotHitBy
+trigger1 = anim = 600
+value = SCA,NA,SA,HA,NP,SP,HP,NT,ST,HT
+time = 1
+
+[State 2000, HitOverride]
+type = HitOverride
+trigger1 = !time
+attr = SCA,NA,SA,HA,NP,SP,HP,NT,ST,HT
+slot = 0
+stateno = 1999
+time = -1
+forceair = 0
+ignorehitpause = 1
+
+[State 2000, PlaySnd]
+type = PlaySnd
+trigger1 = !time
+value = S0,2
+channel = -1
+
+[State 20000, AssertSpecial]
+type = AssertSpecial
+trigger1 = time%2 = 0 && anim = 600
+flag = invisible
+
+[State 2000, VelSet]
+type = VelSet
+trigger1 = !time
+x = root, vel x*root, facing
+y = root, vel y
+ignorehitpause = 1
+
+[State 2000, HitDef]
+type = HitDef
+trigger1 = 1
+attr = A,NP
+hitflag = MAF
+guardflag = MA
+animtype = medium
+air.animtype = medium
+priority = 1,Miss
+ground.hittime = 10
+damage = 20,0
+sparkno = S3000
+guard.sparkno = 40
+sparkxy = 0,0
+hitsound = S0,2
+guardsound = 6,0
+ground.type = High
+air.hittime = 20
+ground.velocity = 0,0
+air.velocity = 0,0
+sprpriority = 1
+p1getp2facing = 0
+fall = 0
+fall.yvelocity = -4.5
+fall.recover = 1
+fall.recovertime = 4
+fall.damage = 0
+down.bounce = 0
+hitonce = 1
+kill = 1
+guard.kill = 1
+fall.kill = 1
+numhits = 1
+palfx.time = 20
+palfx.mul = 255,255,255
+palfx.add = 255,0,0
+
+[State 2000, Gravity]
+type = Gravity
+trigger1 = Pos Y < 0 && anim != 603
+ignorehitpause = 1
+
+[State 2000, VelSet]
+type = VelSet
+trigger1 = Pos Y >= 0
+y = -(vel y*0.8)
+ignorehitpause = 1
+
+[State 2000, ChangeAnim]
+type = ChangeAnim
+trigger1 = Pos Y >= 0 && anim != 601
+value = 601
+ignorehitpause = 1
+
+[State 2000, ChangeAnim]
+type = ChangeAnim
+trigger1 = Vel Y < 0 && anim = 601
+value = 602
+ignorehitpause = 1
+
+[State 2000, VarSet]
+type = VarSet
+trigger1 = anim = 602 && !fvar(0)
+fv = 0    ;fv = 10
+value = ifelse(random < 500, -1, 1)
+ignorehitpause = 1
+
+[State 2000, VelSet]
+type = PosSet
+trigger1 = Pos Y >= 0
+y = -1
+ignorehitpause = 1
+
+[State 2000, VelSet]
+type = VelSet
+trigger1 = fvar(0)
+x = fvar(0)
+ignorehitpause = 1
+
+[State 2000, VarSet]
+type = ChangeState
+trigger1 = FrontEdgeBodyDist  <= 0 || BackEdgeBodyDist <= 0
+value = 1998
+
+[State 2000, PosSet]
+type = PosAdd
+trigger1 = FrontEdgeBodyDist  <= 0
+x = -FrontEdgeBodyDist-3
+
+[State 2000, PosSet]
+type = PosAdd
+trigger1 = BackEdgeBodyDist  <= 0
+x = -BackEdgeBodyDist+3
+
+[State 2000, ChangeAnim]
+type = ChangeAnim
+trigger1 = (time > 200 || movecontact) && anim != 603
+value = 603
+
+[State 2000, VelSet]
+type = VelSet
+trigger1 = anim = 603
+x = 0
+y = 0
+
+[State 2000, DestroySelf]
+type = DestroySelf
+trigger1 = anim = 603 && animtime = 0
+ignorehitpause = 1
+
+; Gota Azul de Fogo (Special)
+[Statedef 2001]
+type = A
+movetype = A
+physics = N
+anim = 602
+poweradd = -40
+
+[State 2000, HitOverride]
+type = HitOverride
+trigger1 = !time
+attr = SCA,NA,SA,HA,NP,SP,HP,NT,ST,HT
+slot = 0
+stateno = 1999
+time = -1
+forceair = 0
+ignorehitpause = 1
+
+[State 2001, Turn]
+type = Turn
+trigger1 = facing = -1
+
+[State 2000, PlaySnd]
+type = PlaySnd
+trigger1 = parent, ID = helper(1000), ID && !time
+value = S0,0
+freqmul = 1.0-((random/6.0)/1000.0)
+channel = -1
+
+[State 2001, PosAdd]
+type = PosSet
+trigger1 = !time && parent, ID = helper(1000), ID
+x = parent, pos x + 45
+y = -140
+
+[State 2001, PosAdd]
+type = PosSet
+trigger1 = !time && parent, ID != helper(1000), ID
+x = parent, pos x + 30
+y = parent, pos y
+
+[State 2001, VarSet]
+type = VarSet
+trigger1 = parent, ID != helper(1000), ID
+v = 10
+value = parent, var(10) + 10
+
+[State 2001, PosSet]
+type = PosSet
+trigger1 = FrontEdgeDist <= 0
+x = -140
+ignorehitpause = 1
+
+[State 2001, Helper]
+type = Helper
+trigger1 = !time && numhelper(2001) < 8
+helpertype = normal
+name = "Fire Projectile"
+ID = 2001
+stateno = 2001
+pos = 0,0
+postype = p1
+facing = 1
+keyctrl = 0
+ownpal = 1
+
+[State 2001, HitDef]
+type = HitDef
+trigger1 = 1
+attr = A,NP
+hitflag = MAF
+guardflag = MA
+animtype = medium
+air.animtype = medium
+priority = 1,Miss
+damage = 20,0
+pausetime = 0, 0
+sparkno = S3000
+guard.sparkno = 40
+sparkxy = 0,0
+hitsound = S0,2
+guardsound = 6,0
+ground.type = High
+ground.hittime = 10
+air.hittime = 20
+ground.velocity = 0,0
+air.velocity = 0,0
+sprpriority = 1
+p1getp2facing = 0
+fall = 0
+fall.yvelocity = -4.5
+fall.recover = 1
+fall.recovertime = 4
+fall.damage = 0
+down.bounce = 0
+hitonce = 1
+kill = 1
+guard.kill = 1
+fall.kill = 1
+numhits = 1
+palfx.time = 20
+palfx.mul = 255,255,255
+palfx.add = 255,0,0
+
+
+[State 2001, Gravity]
+type = Gravity
+trigger1 = Pos Y < 0 && anim != 603 && time >= var(10)
+ignorehitpause = 1
+
+[State 2001, PlaySnd]
+type = PlaySnd
+trigger1 = Pos Y >= 0 && anim != 603
+value = S0,1
+channel = -1
+
+[State 2001, ChangeAnim]
+type = ChangeAnim
+trigger1 = (movecontact || Pos Y >= 0) && anim != 603
+value = 603
+ignorehitpause = 1
+
+[State 2001, VelSet]
+type = PosSet
+trigger1 = Pos Y > 0
+y = 0
+ignorehitpause = 1
+
+[State 2001, VelSet]
+type = VelSet
+trigger1 = anim = 603
+x = 0
+y = 0
+
+
+[State 2001, DestroySelf]
+type = DestroySelf
+trigger1 = anim = 603 && animtime = 0
+ignorehitpause = 1
+
+; Gota Azul de Fogo Giratório
+[Statedef 2002]
+type = A
+movetype = A
+physics = N
+anim = 600
+poweradd = -60
+
+[State 2002, NotHitBy]
+type = NotHitBy
+trigger1 = !time
+value = SCA,NA,SA,HA,NP,SP,HP,NT,ST,HT
+time = -1
+
+[State 2002, AssertSpecial]
+type = AssertSpecial
+trigger1 = 1
+flag = noshadow
+
+[State 2002, PlaySnd]
+type = PlaySnd
+triggerall = numhelper(1000)
+trigger1 = parent, ID = helper(1000), ID && !time
+value = S0,0
+freqmul = 1.0-((random/6.0)/1000.0)
+channel = -1
+
+[State 2002, VarSet]
+type = VarSet
+trigger1 = !time && root, ID != parent, ID
+v = 10
+value = parent, var(10) + 360/8
+
+[State 2002, VarSet]
+type = VarSet
+trigger1 = !time
+v = 11
+value = 90
+
+[State 2002, VarSet]
+type = VarSet
+trigger1 = !time
+v = 12
+value = 0
+
+[State 2002, PosSet]
+type = PosSet
+trigger1 = 1
+x = root, pos x - (var(12)*cos(((var(11)+var(10))/180.0)*PI))
+y = -40+root, pos y - (var(12)*sin(((var(11)+var(10))/180.0)*PI))
+
+[State 2002, VarAdd]
+type = VarAdd
+trigger1 = 1
+v = 11
+value = 2
+
+[State 2002, VarAdd]
+type = VarAdd
+trigger1 = 1
+v = 12
+value = 2
+
+[State 2002, DestroySelf]
+type = DestroySelf
+trigger1 = var(12) >= 400 || movecontact
+
+[State 2002, Helper]
+type = Helper
+trigger1 = numhelper(2002) < 8 && !var(0)
+helpertype = normal ;player
+name = "Giratory Fire"
+ID = 2002
+stateno = 2002
+pos = 0,0
+postype = p1
+facing = 1
+keyctrl = 0
+ownpal = 1
+
+[State 2002, HitDef]
+type = HitDef
+trigger1 = 1
+attr = A,NP
+hitflag = MAF
+guardflag = MA
+animtype = medium
+air.animtype = medium
+damage = 40,10
+pausetime = 0,50
+guard.pause = 0, 30
+sparkno = S3000
+guard.sparkno = 40
+sparkxy = 0,0
+hitsound = S0,2
+guardsound = 6,0
+ground.hittime = 30
+ground.type = High
+air.hittime = 20
+ground.velocity = 0,0
+air.velocity = 0,0
+sprpriority = 1
+p1getp2facing = 0
+fall = 1
+fall.yvelocity = -4.5
+fall.recover = 1
+fall.recovertime = 4
+fall.damage = 0
+down.bounce = 0
+id = 0
+chainID = -1
+nochainID = -1
+hitonce = 1
+kill = 1
+guard.kill = 1
+fall.kill = 1
+numhits = 1
+palfx.time = 20
+palfx.mul = 255,255,255
+palfx.add = 255,0,0
+
+[State 2002, VarSet]
+type = VarSet
+trigger1 = !var(0)
+v = 0
+value = 1
+
+; Gota Azul de Fogo Giratório (Special)
+[Statedef 2003]
+type = A
+movetype = A
+physics = N
+anim = 602
+poweradd = -60
+
+[State 2003, Turn]
+type = Turn
+trigger1 = facing = -1
+
+[State 2003, NotHitBy]
+type = NotHitBy
+trigger1 = !time
+value = SCA,NA,SA,HA,NP,SP,HP,NT,ST,HT
+time = -1
+ignorehitpause = 1
+
+[State 2003, VarSet]
+type = VarSet
+trigger1 = !time && root, ID != parent, ID
+v = 10
+value = parent, var(10) + 360/16
+
+[State 2003, VarSet]
+type = VarSet
+trigger1 = !time
+v = 42
+value = parent, var(42)
+
+[State 2003, VarSet]
+type = VarSet
+trigger1 = !time
+v = 11
+value = 90
+
+[State 2003, VarSet]
+type = VarSet
+trigger1 = !time
+v = 12
+value = 0
+
+[State 2003, PosSet]
+type = PosSet
+trigger1 = 1
+x = root, pos x - (var(12)*cos(((var(11)+var(10))/180.0)*PI))
+y = -40+root, pos y - (var(12)*sin(((var(11)+var(10))/180.0)*PI))
+
+[State 2003, VarAdd]
+type = VarAdd
+trigger1 = 1
+v = 11
+value = 3*var(42)
+
+[State 2003, VarAdd]
+type = VarAdd
+trigger1 = 1
+v = 12
+value = 4*var(42)
+
+[State 2003, DestroySelf]
+type = DestroySelf
+trigger1 = abs(var(12)) >= 400 || movecontact
+
+[State 2003, Helper]
+type = Helper
+trigger1 = numhelper(2003) < 7 && !var(0)
+helpertype = normal
+name = "Giratory Fire Special"
+ID = 2003
+stateno = 2003
+pos = 0,0
+postype = p1
+facing = 1
+keyctrl = 0
+ownpal = 1
+
+[State 2003, VarSet]
+type = VarSet
+trigger1 = !var(0)
+v = 0
+value = 1
+
+[State 2003, HitDef]
+type = HitDef
+trigger1 = 1
+attr = A,NP
+hitflag = MLAF
+guardflag = MA
+animtype = medium
+air.animtype = medium
+priority = 1,Miss
+ground.hittime = 10
+damage = 20,5
+sparkno = S3000
+guard.sparkno = 40
+sparkxy = 0,0
+hitsound = S0,2
+guardsound = 6,0
+ground.type = High
+air.hittime = 20
+ground.velocity = 0,0
+air.velocity = 0,0
+sprpriority = 1
+p1getp2facing = 0
+fall = 0
+fall.yvelocity = -4.5
+fall.recover = 1
+fall.recovertime = 4
+fall.damage = 0
+down.bounce = 0
+hitonce = 1
+kill = 1
+guard.kill = 1
+fall.kill = 1
+numhits = 1
+palfx.time = 20
+palfx.mul = 255,255,255
+palfx.add = 255,0,0
+
+;Orientador AI
+[Statedef 2004]
+type = A
+movetype = I
+physics = N
+anim = -1
+
+[State 2004, NotHitBy]
+type = NotHitBy
+trigger1 = !time
+value = SCA,NA,SA,HA,NP,SP,HP,NT,ST,HT
+time = -1
+
+[State 2004, AssertSpecial]
+type = AssertSpecial
+trigger1 = 1
+flag = invisible
+
+[State 2004, VarSet]
+type = VarSet
+trigger1 = !var(0)
+v = 58
+value = (30+(random%320)-30)-160
+
+[State 2004, VarSet]
+type = VarSet
+trigger1 = !var(0)
+v = 59
+value = (random%240)-58
+
+[State 2004, VarSet]
+type = VarSet
+trigger1 = !var(0)
+v = 0
+value = 60
+
+[State 0, VarAdd]
+type = VarAdd
+triggerall = numhelper(1000)
+trigger1 = var(0) && helper(1000), var(3) = 2
+v = 0
+value = -1
+
+[State 2004, AndarParaAEsquerda]
+type = PosSet
+triggerall = numhelper(1000)
+trigger1 = helper(1000), var(3) = 2 && roundstate = 2 && root, ctrl && root, alive && !var(0)
+x = var(58)
+y = -var(59)
+
+[State 2004, AndarParaAEsquerda]
+type = PosSet
+triggerall = numhelper(1000)
+trigger1 = helper(1000), var(3) != 2 && roundstate = 2 && root, ctrl && root, alive
+x = (cos((fvar(23))/180.0*pi)*90)
+y = (-50+(sin(((fvar(23)*2))/180.0*pi)*30))
+
+[State 2004, VarSet]
+type = VarSet
+triggerall = numhelper(1000) && roundstate = 2 && root, ctrl && root, alive
+trigger1 = helper(1000), var(3) != 2 && gametime % 80 = 0
+v = 22
+value = ((random % 2))
+
+[State 2004, VarSet]
+type = VarAdd
+triggerall = numhelper(1000) && roundstate = 2 && root, ctrl && root, alive
+trigger1 = helper(1000), var(3) != 2
+fv = 23
+value = ifelse(helper(1000), var(3) != 8, 0.5+var(22), 2)
+
+[State 2004, DestroySelf]
+type = DestroySelf
+trigger1 = roundstate != 2 || !root, alive
+
+
+;==================================================================================
+;======| RELACIONADO À AI - AI RELATED |===========================================
+;==================================================================================
+
+; (Credit to ANMC, Bagaliao, and FlowaGirl for the basic helper method concept.)
+;
+;------------------
+; AI Activation Helper State - Primary Version
+; (Credit to YongMing for the basic HitPause bugfix concept.)
+;
+; var(1) - First tick button activation prevention.
+; var(2) - Used for pause/superpause and custom state check, basically.
+; var(3) - (Super/)Pause & custom state-triggered dir detection disabler.
+; var(4) - Persistent direction command detection enabler (due to 2002.04.14).
+; var(9) - AutoTurn bug fixer.
+; parent's var(57) - Parent's GameTime var, for pause and custom state check.
+; parent's var(59) - Parent's primary AI variable.
+;
+; The code in this state is mostly simply copy/pasteable.
+; But if you're using different indices for the parent's variables,
+; or if you change your character's basic commands' names, you'll
+; of course need to change the code in this state accordingly.
+
+[StateDef 9741]
+type = S
+movetype = I
+physics = N
+anim = 9741
+ctrl = 0
+
+[State 9741, Safety]; Just in case your opponent is very poorly coded.
+type = SelfState
+trigger1 = !IsHelper
+value = 0
+
+[State 9741, PauseCheck]
+type = VarSet
+trigger1 = (GameTime>(Parent,var(57)))
+trigger2 = !(Parent,Alive)
+trigger3 = (RoundState != 2)
+trigger4 = Parent,var(59)
+trigger5 = (var(3):=0)
+var(2) = (var(3):=1)+(var(4):=0)
+
+[State 9741, Facing]
+type = Turn
+trigger1 = (var(9):=(Facing != Parent,Facing))
+
+[State 9741, DirTurnOnAI]
+type = ParentVarSet
+triggerall = !var(3)
+triggerall = !var(9)
+trigger1 = (Parent,command = "holdfwd")
+trigger2 = (Parent,command = "holdback")
+trigger3 = (Parent,command = "holdup")
+trigger4 = (Parent,command = "holddown")
+trigger5 = !(var(4):=1)
+var(59) = var(4)
+
+[State 9741, DirTurnOffAI]
+type = ParentVarSet
+triggerall = !var(3)
+triggerall = Parent,var(59)
+trigger1 = (command = "holdfwd")
+trigger1 = (Parent,command = "holdfwd")
+trigger2 = (command = "holdback")
+trigger2 = (Parent,command = "holdback")
+trigger3 = (command = "holdup")
+trigger3 = (Parent,command = "holdup")
+trigger4 = (command = "holddown")
+trigger4 = (Parent,command = "holddown")
+var(59) = (var(4):=0)
+
+[State 9741, ButtonTurnOnAI]
+type = ParentVarSet
+triggerall = var(1)
+triggerall = !var(2)
+trigger1 = (Parent,command = "a")
+trigger2 = (Parent,command = "b")
+trigger3 = (Parent,command = "c")
+trigger4 = (Parent,command = "x")
+trigger5 = (Parent,command = "y")
+trigger6 = (Parent,command = "z")
+trigger7 = (Parent,command = "start")
+var(59) = 1
+
+[State 9741, ButtonTurnOffAI]
+type = ParentVarSet
+triggerall = !var(2)
+trigger1 = (command = "a")
+trigger1 = (Parent,command = "a")
+trigger2 = (command = "b")
+trigger2 = (Parent,command = "b")
+trigger3 = (command = "c")
+trigger3 = (Parent,command = "c")
+trigger4 = (command = "x")
+trigger4 = (Parent,command = "x")
+trigger5 = (command = "y")
+trigger5 = (Parent,command = "y")
+trigger6 = (command = "z")
+trigger6 = (Parent,command = "z")
+trigger7 = (command = "start")
+trigger7 = (Parent,command = "start")
+var(59) = -1
+
+[State 9741, UnPauseCheck]
+type = VarSet
+triggerall = var(2)
+trigger1 = (Parent,command = "a")
+trigger2 = (Parent,command = "b")
+trigger3 = (Parent,command = "c")
+trigger4 = (Parent,command = "x")
+trigger5 = (Parent,command = "y")
+trigger6 = (Parent,command = "z")
+trigger7 = (Parent,command = "start")
+trigger8 = (var(2) = 2)
+trigger8 = (var(2):=0)
+var(2) = 2
+
+[State 9741, Goodbye]
+type = DestroySelf
+triggerall = (var(1):=1)
+trigger1 = Parent,var(59)
+trigger2 = !(Parent,Alive)
+trigger3 = (RoundState != 2)
+
+
+;------------------
+; AI Activation Helper State - Compatibly Partnered Version
+;
+; var(1) - First tick dir activation prevention
+; var(2) - Used for pause/superpause and custom state check, basically.
+; var(3) - (Super/)Pause & custom state-triggered dir detection disabler.
+; var(4) - Hitpause check.
+; var(5) - No button on previous tick.
+; var(6) - Any dir on this tick.
+; var(7) - Any button on this tick.
+; var(8) - Matching partner button detected.
+; var(9) - AutoTurn bug fixer.
+; parent's var(57) - Parent's GameTime var, for pause and custom state check.
+; parent's var(59) - Parent's primary AI variable.
+;
+; The code in this state is mostly simply copy/pasteable.
+; But if you're using different indices for the parent's variables,
+; or if you change your character's basic commands' names, you'll
+; of course need to change the code in this state accordingly.
+
+[StateDef 9742]
+type = S
+movetype = I
+physics = N
+anim = 9741
+ctrl = 0
+
+[State 9742, Safety]; Just in case your opponent is very poorly coded.
+type = SelfState
+trigger1 = !IsHelper
+value = 0
+
+[State 9742, PauseCheck]
+type = VarSet
+trigger1 = (GameTime>Parent,var(57))
+trigger2 = !(Parent,Alive)
+trigger3 = (RoundState != 2)
+trigger4 = Parent,var(59)
+trigger5 = (var(3):=0)
+var(2) = (var(3):=1)
+
+[State 9742, Facing]
+type = Turn
+trigger1 = (var(9):=(Facing != Parent,Facing))
+
+[State 9742, ParentDirCheck]
+type = VarSet
+trigger1 = (Parent,command = "holdfwd")
+trigger2 = (Parent,command = "holdback")
+trigger3 = (Parent,command = "holdup")
+trigger4 = (Parent,command = "holddown")
+trigger5 = (var(6):=0)
+var(6) = 1
+
+[State 9742, ParentButtonCheck]
+type = VarSet
+trigger1 = (Parent,command = "a")
+trigger2 = (Parent,command = "b")
+trigger3 = (Parent,command = "c")
+trigger4 = (Parent,command = "x")
+trigger5 = (Parent,command = "y")
+trigger6 = (Parent,command = "z")
+trigger7 = (Parent,command = "start")
+trigger8 = (var(7):=0)
+var(7) = 1
+
+[State 9742, SameButtonCheck]
+type = VarSet
+triggerall = var(7)
+triggerall = !var(2)
+triggerall = NumPartner
+trigger1 = (Parent,command = "a")
+trigger1 = (Partner,command = "a")
+trigger2 = (Parent,command = "b")
+trigger2 = (Partner,command = "b")
+trigger3 = (Parent,command = "c")
+trigger3 = (Partner,command = "c")
+trigger4 = (Parent,command = "x")
+trigger4 = (Partner,command = "x")
+trigger5 = (Parent,command = "y")
+trigger5 = (Partner,command = "y")
+trigger6 = (Parent,command = "z")
+trigger6 = (Partner,command = "z")
+trigger7 = (Parent,command = "start")
+trigger7 = (Partner,command = "start")
+trigger8 = (var(8):=0)
+var(8) = 1
+
+[State 9742, DirTurnOnAI]
+type = ParentVarSet
+trigger1 = var(1)
+trigger1 = var(6)
+trigger1 = !var(3)
+trigger1 = !var(4)
+trigger1 = !var(9)
+var(59) = 1
+
+[State 9742, DirTurnOffAI]
+type = ParentVarSet
+triggerall = var(6)
+triggerall = !var(3)
+triggerall = Parent,var(59)
+trigger1 = (command = "holdfwd")
+trigger1 = (Parent,command = "holdfwd")
+trigger2 = (command = "holdback")
+trigger2 = (Parent,command = "holdback")
+trigger3 = (command = "holdup")
+trigger3 = (Parent,command = "holdup")
+trigger4 = (command = "holddown")
+trigger4 = (Parent,command = "holddown")
+var(59) = 0
+
+[State 9742, ButtonTurnOnAI]
+type = ParentVarSet
+trigger1 = var(5)
+trigger1 = var(7)
+trigger1 = !var(2)
+trigger1 = !var(8)
+var(59) = 1
+
+[State 9742, ButtonTurnOffAI]
+type = ParentVarSet
+triggerall = var(7)
+triggerall = !var(2)
+triggerall = !var(8)
+trigger1 = (command = "a")
+trigger1 = (Parent,command = "a")
+trigger2 = (command = "b")
+trigger2 = (Parent,command = "b")
+trigger3 = (command = "c")
+trigger3 = (Parent,command = "c")
+trigger4 = (command = "x")
+trigger4 = (Parent,command = "x")
+trigger5 = (command = "y")
+trigger5 = (Parent,command = "y")
+trigger6 = (command = "z")
+trigger6 = (Parent,command = "z")
+trigger7 = (command = "start")
+trigger7 = (Parent,command = "start")
+var(59) = -1
+
+[State 9742, UnPauseCheck]
+type = VarSet
+triggerall = var(2)
+triggerall = !var(4)
+trigger1 = var(7)
+trigger2 = (var(2) = 2)
+trigger2 = (var(2):=0)
+var(2) = 2
+
+[State 9742, Goodbye]
+type = DestroySelf
+trigger1 = Parent,var(59)
+trigger2 = !(Parent,Alive)
+trigger3 = (RoundState != 2)
+
+[State 9742, HitPauseCheck]
+type = VarSet
+trigger1 = var(6)
+trigger2 = var(7)
+trigger3 = !(Parent,HitPauseTime)
+var(4) = Parent,HitPauseTime
+
+[State 9742, Delay]
+type = VarSet
+trigger1 = (var(1):=1)
+var(5) = !var(7)
+
+
+;------------------
+; XOR Method's HitPauseTime Helper State
+
+[StateDef 9743]
+type = S
+movetype = I
+physics = N
+anim = 9741
+ctrl = 0
+
+[State 9743, Safety]; Just in case your opponent is very poorly coded.
+type = SelfState
+trigger1 = !IsHelper
+value = 0
+
+[State 9743, HitPauseTime]
+type = VarSet
+trigger1 = !(Parent,HitPauseTime)
+trigger2 = (GameTime>Parent,var(57))
+var(1) = Parent,HitPauseTime
+
+[State 9742, Goodbye]
+type = DestroySelf
+trigger1 = (Parent,var(59) = 1)
+trigger2 = !(Parent,Alive)
+trigger3 = (RoundState != 2)
+
+;==================================================================================
+;==================================================================================
+;==================================================================================
+
+;---------------------------------------------------------------------------
+; Override common states (use same number to override) :
+;---------------------------------------------------------------------------
+
+;---------------------------------------------------------------------------
+; States that are always executed (use statedef -2)
+;---------------------------------------------------------------------------
+[StateDef -2]
+
+[State -2, PalFX]
+type = PalFX
+triggerall = !(var(5) > gametime && gametime % 2)
+trigger1 = life <= lifemax/2
+time = 1
+add = 256-floor(256.0*(1.0*life/(lifemax/2))),0,0
+ignorehitpause = 1
+
+[State -2, HitOverride]
+type = HitOverride
+trigger1 = 1
+attr = SCA,NA,SA,HA,NP,SP,HP,NT,ST,HT
+slot = 0
+stateno = 200
+time = 1
+forceair = 0
+ignorehitpause = 1
+
+;==================================================================================
+;======| RELACIONADO À AI - AI RELATED |===========================================
+;==================================================================================
+
+; Within StateDef -2, none of your own AI-related code should be placed
+; above these next two controllers.
+
+[State -2, StopAI]
+type = VarSet
+triggerall = (var(59) > 0)
+trigger1 = (RoundState != 2)
+trigger2 = !Alive
+var(59) = -2
+IgnoreHitPause = 1
+
+; This controller is optional.  It allows you treat the AI flag as a boolean
+; value rather than an integer value, letting you trigger your AI directives
+; with "var(0)" instead of "var(59)>0", and letting you make moves usable only
+; by humans by using "!var(0)" instead of "var(59)<1", thus slightly improving
+; the size and efficiency of your code.
+; Another benefit is that it makes it much easier for users to disable your AI,
+; if they so choose.
+[State -2, Simplifier]
+type = VarSet
+trigger1 = (var(59) = 1)
+trigger2 = (var(0):=0)
+var(0) = 1	; Another option is to replace 1 with something like MatchNo, if
+		; you want to design your AI to have varying levels of difficulty.
+IgnoreHitPause = 1
+
+[State -2, Helper]
+type = Helper
+trigger1 = !numhelper(1000) && alive
+helpertype = normal
+name = "Corpo"
+ID = 1000
+stateno = 1000
+pos = 0,0
+postype = p1
+facing = 1
+
+;==================================================================================
+;==================================================================================
+;==================================================================================
+
+
+;---------------------------------------------------------------------------
+; States that are executed when in self's state file (use statedef -3)
+;---------------------------------------------------------------------------
+
+[Statedef -3]
+
+;Phantoon suga a energia do ambiente
+[State -3, PowerAdd]
+type = PowerAdd
+trigger1 = roundstate = 2 && power < powermax
+value = ceil(ceil(powermax-power)/256.0)
+
+[State 191, StopSnd]
+type = StopSnd
+trigger1 = !time && roundstate = 2 && stateno = 0
+channel = 9
+
+[State -3, NotHitBy]
+type = NotHitBy
+triggerall = numhelper(1000)
+trigger1 = helper(1000), var(3) != 3 && helper(1000), var(3) != 1 && helper(1000), var(3) != 8
+value = SCA,NA,SA,HA,NP,SP,HP,NT,ST,HT
+ignorehitpause = 1
+
+[State -3, PosSet]
+type = PosSet
+triggerall = numhelper(1000)
+trigger1 = !helper(1000), var(3) && !helper(1000), var(4)
+x = 0
+y = -50
+ignorehitpause = 1
+
+[State -3, PosSet]
+type = VelSet
+triggerall = numhelper(1000)
+trigger1 = helper(1000), var(3) = 7
+x = 0
+y = 0
+ignorehitpause = 1
+
+[State -3, PosSet]
+type = PosSet
+triggerall = numhelper(1000)
+trigger1 = helper(1000), var(3) = 7
+x = 0
+y = -80
+ignorehitpause = 1
+
+[State -3, CtrlSet]
+type = CtrlSet
+trigger1 = numhelper(1000) && roundstate = 2
+value = ifelse(helper(1000), var(3) = 3 || helper(1000), var(3) = 1 || helper(1000), var(3) = 7  || roundstate != 2, 0, 1)
+ignorehitpause = 1
+
+[State -3, PlayerPush]
+type = PlayerPush
+trigger1 = numhelper(1000) && roundstate = 2
+value = ifelse(helper(1000), var(3) = 3 || helper(1000), var(3) = 1, 1, 0)
+ignorehitpause = 1
+
+[State -3, PalFX]
+type = PalFX
+trigger1 = var(5) > gametime && gametime % 2
+time = 1
+add = 255,255,255
+ignorehitpause = 1
+
+[State -3, Turn]
+type = Turn
+trigger1 = numenemy && alive && P2BodyDist X < -60
+
+;==================================================================================
+;======| RELACIONADO À AI - AI RELATED |===========================================
+;==================================================================================
+
+; Kamek and Luchini appear to have been the first ones to use the IsHomeTeam AI activation concept.
+; Feel free to move this controller to your character's intro state for slightly better efficiency.
+[State -3, SetAI]
+type = VarSet
+triggerall = !RoundState
+triggerall = IsHomeTeam
+trigger1 = (TeamSide = 2)
+trigger2 = (MatchNo > 1)
+var(59) = 1
+
+[State -3, AI Helper (Compatibly Partnered Version)]
+type = Helper
+trigger1 = !var(59)
+trigger1 = !NumHelper(9742)
+trigger1 = (RoundState = 2)
+trigger1 = Alive
+trigger1 = NumPartner
+trigger1 = Partner,SelfAnimExist(9741)
+HelperType = normal
+name = "AI Helper (Simul Version)"
+ID = 9742
+pos = 9999999,99999
+StateNo = 9742
+KeyCtrl = 1
+PauseMoveTime = 999999999
+SuperMoveTime = 999999999
+
+; If you want to use the Guard mode, Dummy mode, Distance, or Button jam dummy control
+; options in Training mode without activating the dummy's AI while working on your
+; character, then all you need to do is temporarily disable this controller.
+; Or, if you want to permanently disable this controller in Training mode,
+; then you could use the Training mode detection code available on my site
+; ( http://www.shinmugen.net/winane/ ), and then just add a "(var(59)&63)>30"
+; triggerall to this controller.
+[State -3, AI Helper]
+type = Helper
+triggerall = !var(59)
+triggerall = !NumHelper(9741)
+triggerall = (RoundState = 2)
+triggerall = Alive
+trigger1 = !NumPartner
+trigger2 = !(Partner,SelfAnimExist(9741))
+HelperType = normal
+name = "AI Helper"
+ID = 9741
+pos = 9999999,99999
+StateNo = 9741
+KeyCtrl = 1
+PauseMoveTime = 999999999
+SuperMoveTime = 999999999
+
+[State -3, TurnBackOnAI]
+type = VarSet
+trigger1 = (var(59) = -2)
+trigger1 = (RoundState = 2)
+trigger1 = Alive
+var(59) = 1
+
+[State -3, HitPauseTime Helper]
+type = Helper
+triggerall = var(59)!=1
+triggerall = !NumHelper(9743)
+triggerall = (RoundState = 2)
+triggerall = Alive
+trigger1 = (MatchNo = 1)
+trigger2 = NumPartner
+trigger2 = (ID > Partner,ID)
+HelperType = normal
+name = "HitPauseTime"
+ID = 9743
+pos = 9999999,99999
+StateNo = 9743
+PauseMoveTime = 999999999
+SuperMoveTime = 999999999
+
+; According to Roque, this method works in Linux Mugen version 2002.04.14,
+; whereas the old humanly-impossible commands method does not.
+; It is very important that this controller NOT be moved to State -2.
+; Note that this part won't work if AI.Cheat is turned off in mugen.cfg.
+[State -3, XOR]
+type = VarSet
+triggerall = var(59)!=1
+triggerall = (var(57) = GameTime-1)
+triggerall = NumHelper(9743)
+triggerall = !(Helper(9743),var(1))
+trigger1 = (command = "a") ^^ (command = "a2")
+trigger2 = (command = "b") ^^ (command = "b2")
+trigger3 = (command = "c") ^^ (command = "c2")
+trigger4 = (command = "x") ^^ (command = "x2")
+trigger5 = (command = "y") ^^ (command = "y2")
+trigger6 = (command = "z") ^^ (command = "z2")
+trigger7 = (command = "start") ^^ (command = "start2")
+trigger8 = (command = "holda") ^^ (command = "holda2")
+trigger9 = (command = "holdb") ^^ (command = "holdb2")
+trigger10 = (command = "holdc") ^^ (command = "holdc2")
+trigger11 = (command = "holdx") ^^ (command = "holdx2")
+trigger12 = (command = "holdy") ^^ (command = "holdy2")
+trigger13 = (command = "holdz") ^^ (command = "holdz2")
+trigger14 = (command = "holdstart") ^^ (command = "holdstart2")
+trigger15 = (command = "holdfwd") ^^ (command = "holdfwd2")
+trigger16 = (command = "holdback") ^^ (command = "holdback2")
+trigger17 = (command = "holdup") ^^ (command = "holdup2")
+trigger18 = (command = "holddown") ^^ (command = "holddown2")
+trigger19 = (command = "recovery") ^^ (command = "recovery2")
+;Add more as desired. (See my notes in the CMD.)
+var(59) = 1
+
+; It is very important that this controller NOT be moved to State -2, as putting
+; it there would defeat the entire purpose of the controller, allowing the
+; helper method or the XOR method to erroneously set the AI variable.
+; And within State -3, don't put any ChangeState controllers before this
+; controller, lest you unnecessarily delay your character's AI activation.
+[State -3, GameTimeVar]
+type = VarSet
+trigger1 = 1
+var(57) = GameTime
+IgnoreHitPause = 1
+
+; Within StateDef -3, none of your own AI-related code should come after the code
+; provided here (and putting it before the code is also generally a bad idea).
+; It's better to use State -1 (or, in special circumstances, State -2) instead.
+
+;==================================================================================
+;==================================================================================
+;==================================================================================
+[State -3, Helper]
+type = Helper
+triggerall = var(0)
+trigger1 = !numhelper(2004) && roundstate = 2
+helpertype = normal
+name = "Orientador AI"
+ID = 2004
+stateno = 2004
+pos = 0,0
+postype = p1
+facing = 1
+keyctrl = 0
+ownpal = 1
+
+[State -3, AndarIAAutomatico]
+type = PosAdd
+triggerall = var(0) && numhelper(2004)
+trigger1 = roundstate = 2 && ctrl && alive
+x = ((pos x - helper(2004), pos x)*-facing)/40
+y = (helper(2004), pos y-pos y)/40
+
+[State -3, AndarParaAEsquerda]
+type = VelAdd
+triggerall = !var(0) && roundstate = 2 && ctrl && alive
+trigger1 = command = "holdback"
+x = -0.5
+
+[State -3, AndarParaADireita]
+type = VelAdd
+triggerall = !var(0) && roundstate = 2 && ctrl && alive
+trigger1 = command = "holdfwd"
+x = 0.5
+
+[State -3, AndarParaCima]
+type = VelAdd
+triggerall = !var(0) && roundstate = 2 && ctrl && alive
+trigger1 = command = "holdup"
+y = -0.5
+
+[State -3, AndarParaBaixo]
+type = VelAdd
+triggerall = !var(0) && roundstate = 2 && ctrl && alive
+trigger1 = command = "holddown"
+y = 0.5
+
+[State -3, VelSet]
+type = VelMul
+trigger1 = 1
+x = 0.9
+y = 0.9
+
+[State -3, VelSet]
+type = VelSet
+trigger1 = Pos Y > 0 || (ScreenPos Y < 50 && vel y < 0)
+y = 0
+
+[State -3, VelSet]
+type = PosSet
+trigger1 = Pos Y > 0
+y = 0
+
+[State -3, AssertSpecial]
+type = AssertSpecial
+trigger1 = 1
+flag = nostandguard
+flag2 = nocrouchguard
+flag3 = noairguard
+ignorehitpause = 1
+
+[State -3, AssertSpecial]
+type = AssertSpecial
+trigger1 = 1
+flag = noautoturn
+flag2 = nowalk
+flag3 = invisible
+ignorehitpause = 1
+
+
